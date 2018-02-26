@@ -1,28 +1,24 @@
-import { Rx, defineReactive, isObservable, warn, unsub } from './util'
+import { xstream, defineReactive, isStream, warn, unsub } from './util'
 
 export default {
   created () {
     const vm = this
     const domStreams = vm.$options.domStreams
     if (domStreams) {
-      if (!Rx.Subject) {
-        warn('Rx.Subject is required to use the "domStreams" option.')
-      } else {
-        domStreams.forEach(key => {
-          vm[key] = new Rx.Subject()
-        })
-      }
+      domStreams.forEach(key => {
+        vm[key] = xstream.Stream.create()
+      })
     }
 
-    const observableMethods = vm.$options.observableMethods
-    if (observableMethods) {
-      if (Array.isArray(observableMethods)) {
-        observableMethods.forEach(methodName => {
-          vm[ methodName + '$' ] = vm.$createObservableMethod(methodName)
+    const streamMethods = vm.$options.streamMethods
+    if (streamMethods) {
+      if (Array.isArray(streamMethods)) {
+        streamMethods.forEach(methodName => {
+          vm[ methodName + '$' ] = vm.$createStreamMethod(methodName)
         })
       } else {
-        Object.keys(observableMethods).forEach(methodName => {
-          vm[observableMethods[methodName]] = vm.$createObservableMethod(methodName)
+        Object.keys(streamMethods).forEach(methodName => {
+          vm[streamMethods[methodName]] = vm.$createStreamMethod(methodName)
         })
       }
     }
@@ -32,21 +28,23 @@ export default {
       obs = obs.call(vm)
     }
     if (obs) {
-      vm.$observables = {}
+      vm.$streams = {}
       vm._obSubscriptions = []
       Object.keys(obs).forEach(key => {
         defineReactive(vm, key, undefined)
-        const ob = vm.$observables[key] = obs[key]
-        if (!isObservable(ob)) {
+        const ob = vm.$streams[key] = obs[key]
+        if (!isStream(ob)) {
           warn(
-            'Invalid Observable found in subscriptions option with key "' + key + '".',
+            'Invalid Stream found in subscriptions option with key "' + key + '".',
             vm
           )
           return
         }
-        vm._obSubscriptions.push(obs[key].subscribe(value => {
-          vm[key] = value
-        }, (error) => { throw error }))
+        vm._obSubscriptions.push(obs[key])
+        obs[key].addListener({
+          next: value => { vm[key] = value },
+          error: error => { throw error }
+        })
       })
     }
   },

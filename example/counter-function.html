@@ -1,13 +1,13 @@
 <!-- this demo requires a browser that natively supports ES2015 -->
 
-<script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
+<script src="https://unpkg.com/xstream/dist/xstream.js"></script>
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="../dist/vue-rx.js"></script>
+<script src="../dist/vue-xs.js"></script>
 
 <div id="app">
   <div>{{ count }}</div>
 
-  <!-- callback declared on observableMethods -->
+  <!-- callback declared on streamMethods -->
   <button v-on:click="muchMore(500)">Add 500</button>
 
   <button v-on:click="minus(minusDelta1)"> Minus on Click </button>
@@ -27,20 +27,19 @@ new Vue({
     }
   },
 
-  // declare callback Subjects
-  observableMethods: {
+  // declare callback Streams
+  streamMethods: {
     muchMore: 'muchMore$',
     minus:'minus$'
   }, // equivalent of above: ['muchMore','minus']
 
   subscriptions () {
-    var count$ = Rx.Observable
+    var count$ = xstream.default
       .merge(
       	this.muchMore$,
         this.minus$
       )
-      .startWith(0)
-      .scan((total, change) => total + change)
+      .fold((total, change) => total + change, 0)
 
     return {
       count: count$

@@ -1,9 +1,9 @@
-import { Rx, hasRx, isSubject, warn, getKey, unsub } from '../util'
+import { xstream, hasXStream, isStream, warn, getKey, unsub } from '../util'
 
 export default {
   // Example ./example/counter_dir.html
   bind (el, binding, vnode) {
-    if (!hasRx()) {
+    if (!hasXStream()) {
       return
     }
 
@@ -12,56 +12,60 @@ export default {
     const streamName = binding.expression
     const modifiers = binding.modifiers
 
-    if (isSubject(handle)) {
-      handle = { subject: handle }
-    } else if (!handle || !isSubject(handle.subject)) {
+    if (isStream(handle)) {
+      handle = { stream: handle }
+    } else if (!handle || !isStream(handle.stream)) {
       warn(
-        'Invalid Subject found in directive with key "' + streamName + '".' +
-        streamName + ' should be an instance of Rx.Subject or have the ' +
-        'type { subject: Rx.Subject, data: any }.',
+        'Invalid Stream found in directive with key "' + streamName + '".' +
+        streamName + ' should be an instance of XStream or have the ' +
+        'type { stream: xstream, data: any }.',
         vnode.context
       )
       return
     }
 
-    const subject = handle.subject
-    const next = (subject.next || subject.onNext).bind(subject)
-
+    const stream = handle.stream
+    const next = stream.shamefullySendNext.bind(stream)
     if (!modifiers.native && vnode.componentInstance) {
-      handle.subscription = vnode.componentInstance.$eventToObservable(event).subscribe(e => {
-        next({
-          event: e,
-          data: handle.data
-        })
+      handle.subscription = vnode.componentInstance.$eventToStream(event)
+      handle.subscription.addListener({
+        next: e => {
+          next({
+            event: e,
+            data: handle.data
+          })
+        }
       })
     } else {
-      if (!Rx.Observable.fromEvent) {
+      if (!xstream.fromEvent) {
         warn(
-          `No 'fromEvent' method on Observable class. ` +
-          `v-stream directive requires Rx.Observable.fromEvent method. ` +
-          `Try import 'rxjs/add/observable/fromEvent' for ${streamName}`,
+          `No 'fromEvent' method on Stream class. ` +
+          `v-stream directive requires xstream's fromEvent factory. ` +
+          `Try import 'xstream/extra/fromEvent' for ${streamName}`,
           vnode.context
         )
         return
       }
       const fromEventArgs = handle.options ? [el, event, handle.options] : [el, event]
-      handle.subscription = Rx.Observable.fromEvent(...fromEventArgs).subscribe(e => {
-        next({
-          event: e,
-          data: handle.data
-        })
+      handle.subscription = xstream.fromEvent(...fromEventArgs)
+      handle.subscription.addListener({
+        next: e => {
+          next({
+            event: e,
+            data: handle.data
+          })
+        }
       })
-
-      // store handle on element with a unique key for identifying
-      // multiple v-stream directives on the same node
-      ;(el._rxHandles || (el._rxHandles = {}))[getKey(binding)] = handle
     }
+    // store handle on element with a unique key for identifying
+    // multiple v-stream directives on the same node
+    ;(el._rxHandles || (el._rxHandles = {}))[getKey(binding)] = handle
   },
 
   update (el, binding) {
     const handle = binding.value
     const _handle = el._rxHandles && el._rxHandles[getKey(binding)]
-    if (_handle && handle && isSubject(handle.subject)) {
+    if (_handle && handle && isStream(handle.stream)) {
       _handle.data = handle.data
     }
   },
