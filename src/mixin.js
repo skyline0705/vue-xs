@@ -1,17 +1,13 @@
-import { xstream, defineReactive, isObservable, warn, unsub } from './util'
+import { xstream, defineReactive, isStream, warn, unsub } from './util'
 
 export default {
   created () {
     const vm = this
     const domStreams = vm.$options.domStreams
     if (domStreams) {
-      if (!Rx.Subject) {
-        warn('Rx.Subject is required to use the "domStreams" option.')
-      } else {
-        domStreams.forEach(key => {
-          vm[key] = new Rx.Subject()
-        })
-      }
+      domStreams.forEach(key => {
+        vm[key] = xstream.Stream.create()
+      })
     }
 
     const observableMethods = vm.$options.observableMethods
@@ -37,9 +33,9 @@ export default {
       Object.keys(obs).forEach(key => {
         defineReactive(vm, key, undefined)
         const ob = vm.$observables[key] = obs[key]
-        if (!isObservable(ob)) {
+        if (!isStream(ob)) {
           warn(
-            'Invalid Observable found in subscriptions option with key "' + key + '".',
+            'Invalid Stream found in subscriptions option with key "' + key + '".',
             vm
           )
           return

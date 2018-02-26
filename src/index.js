@@ -9,7 +9,7 @@ import subscribeTo from './methods/subscribeTo'
 import eventToObservable from './methods/eventToObservable'
 import createObservableMethod from './methods/createObservableMethod'
 
-export default function VueRx (Vue, xstream) {
+export default function VueXS (Vue, xstream) {
   install(Vue, xstream)
   Vue.mixin(xsMixin)
   Vue.directive('stream', streamDirective)
@@ -22,5 +22,5 @@ export default function VueRx (Vue, xstream) {
 
 // auto install
 if (typeof Vue !== 'undefined' && typeof xstream !== 'undefined') {
-  Vue.use(VueRx, xstream)
+  Vue.use(VueXS, xstream)
 }

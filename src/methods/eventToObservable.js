@@ -11,15 +11,17 @@ export default function eventToObservable (evtName) {
   }
   const vm = this
   const evtNames = Array.isArray(evtName) ? evtName : [evtName]
-  const obs$ = xstream.Stream.create(observer => {
-    const eventPairs = evtNames.map(name => {
-      const callback = msg => observer.next({ name, msg })
-      vm.$on(name, callback)
-      return { name, callback }
-    })
-    return () => {
-      // Only remove the specific callback
-      eventPairs.forEach(pair => vm.$off(pair.name, pair.callback))
+  const obs$ = xstream.Stream.create({
+    start(listener) {
+      this.eventPairs = evtNames.map(name => {
+        const callback = msg => listener.next({ name, msg })
+        vm.$on(name, callback)
+        return { name, callback }
+      })
+    },
+    stop() {
+      this.eventPairs.forEach(pair => vm.$off(pair.name, pair.callback))
+      this.eventPairs = null
     }
   })
 

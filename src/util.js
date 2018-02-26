@@ -20,15 +20,8 @@ export function hasXStream (vm) {
   return true
 }
 
-export function isObservable (ob) {
+export function isStream (ob) {
   return ob && typeof ob.addListener === 'function'
-}
-
-export function isSubject (subject) {
-  return subject && (
-    typeof subject.next === 'function' ||
-    typeof subject.onNext === 'function'
-  )
 }
 
 export function unsub (handle) {
@@ -39,6 +32,7 @@ export function unsub (handle) {
 }
 
 export function getDisposable (target) {
+  debugger;
   if (Rx.Subscription) {
     return new Rx.Subscription(target)
   }
