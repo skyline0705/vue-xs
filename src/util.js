@@ -31,13 +31,6 @@ export function unsub (handle) {
   })
 }
 
-export function getDisposable (target) {
-  debugger;
-  if (Rx.Subscription) {
-    return new Rx.Subscription(target)
-  }
-}
-
 export function defineReactive (vm, key, val) {
   if (key in vm) {
     vm[key] = val

@@ -21,7 +21,7 @@ export default function eventToObservable (evtName) {
     },
     stop() {
       this.eventPairs.forEach(pair => vm.$off(pair.name, pair.callback))
-      this.eventPairs = null
+      delete this.eventPairs
     }
   })
 
