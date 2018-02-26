@@ -5,12 +5,12 @@ export default function fromDOMEvent (selector, event) {
     return
   }
   if (typeof window === 'undefined') {
-    return Rx.Observable.create(() => {})
+    return xstream.Stream.create(() => {})
   }
 
   const vm = this
   const doc = document.documentElement
-  const obs$ = Rx.Observable.create(observer => {
+  const obs$ = xstream.Stream.create(observer => {
     function listener (e) {
       if (!vm.$el) return
       if (selector === null && vm.$el === e.target) return observer.next(e)

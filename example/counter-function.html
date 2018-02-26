@@ -34,7 +34,7 @@ new Vue({
   }, // equivalent of above: ['muchMore','minus']
 
   subscriptions () {
-    var count$ = xs
+    var count$ = xstream.default
       .merge(
       	this.muchMore$,
         this.minus$

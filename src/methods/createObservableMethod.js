@@ -22,25 +22,45 @@ export default function createObservableMethod (methodName, passContext) {
     )
   }
 
-  const creator = function (observer) {
-    vm[methodName] = function () {
-      const args = Array.from(arguments)
-      if (passContext) {
-        args.push(this)
-        observer.next(args)
-      } else {
-        if (args.length <= 1) {
-          observer.next(args[0])
+  const producer = {
+    start(listener) {
+      vm[methodName] = function () {
+        const args = Array.from(arguments)
+        if (passContext) {
+          args.push(this)
+          listener.next(args)
         } else {
-          observer.next(args)
+          if (args.length <= 1) {
+            listener.next(args[0])
+          } else {
+            listener.next(args)
+          }
         }
       }
-    }
-    return function () {
+    },
+    stop() {
       delete vm[methodName]
     }
   }
 
+  // const creator = function (observer) {
+  //   vm[methodName] = function () {
+  //     const args = Array.from(arguments)
+  //     if (passContext) {
+  //       args.push(this)
+  //       observer.next(args)
+  //     } else {
+  //       if (args.length <= 1) {
+  //         observer.next(args[0])
+  //       } else {
+  //         observer.next(args)
+  //       }
+  //     }
+  //   }
+  //   return function () {
+  //     delete vm[methodName]
+  //   }
+  // }
   // Must be a hot stream otherwise function context may overwrite over and over again
-  return xstream.create(creator)
+  return xstream.Stream.create(producer)
 }
