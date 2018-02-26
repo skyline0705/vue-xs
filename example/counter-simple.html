@@ -29,10 +29,9 @@ new Vue({
     var plus$ = this.plus$.map(() => 1)
     var minus$ = this.minus$.map(() => -1)
     var more$ = this.more$.map(() => 100)
-    var count$ = xstream
+    var count$ = xstream.default
       .merge(plus$, minus$, more$)
-      .startWith(0)
-      .scan((total, change) => total + change)
+      .fold((total, change) => total + change, 0)
 
     return {
       count: count$

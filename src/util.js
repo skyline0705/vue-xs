@@ -21,7 +21,7 @@ export function hasXStream (vm) {
 }
 
 export function isObservable (ob) {
-  return ob && typeof ob.subscribe === 'function'
+  return ob && typeof ob.addListener === 'function'
 }
 
 export function isSubject (subject) {
@@ -33,18 +33,14 @@ export function isSubject (subject) {
 
 export function unsub (handle) {
   if (!handle) return
-  if (handle.dispose) {
-    handle.dispose()
-  } else if (handle.unsubscribe) {
-    handle.unsubscribe()
-  }
+  handle._ils.forEach(listener => {
+    handle.removeListener(listener)
+  })
 }
 
 export function getDisposable (target) {
-  if (Rx.Subscription) { // Rx5
+  if (Rx.Subscription) {
     return new Rx.Subscription(target)
-  } else { // Rx4
-    return Rx.Disposable.create(target)
   }
 }
 

@@ -44,9 +44,11 @@ export default {
           )
           return
         }
-        vm._obSubscriptions.push(obs[key].subscribe(value => {
-          vm[key] = value
-        }, (error) => { throw error }))
+        vm._obSubscriptions.push(obs[key])
+        obs[key].addListener({
+          next: value => vm[key] = value,
+          error: error => { throw error }
+        })
       })
     }
   },
