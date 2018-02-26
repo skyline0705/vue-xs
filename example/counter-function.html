@@ -34,13 +34,12 @@ new Vue({
   }, // equivalent of above: ['muchMore','minus']
 
   subscriptions () {
-    var count$ = Rx.Observable
+    var count$ = xs
       .merge(
       	this.muchMore$,
         this.minus$
       )
-      .startWith(0)
-      .scan((total, change) => total + change)
+      .fold((total, change) => total + change, 0)
 
     return {
       count: count$
