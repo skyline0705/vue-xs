@@ -140,7 +140,7 @@ const plusData$ = this.plus$.map(({data}) => data)
 
 > 此功能需要 XStream fromEvent 。
 
-这是一个添加到实例上的原型方法。你可以使用它来创建 observable， 该 observable 来自值的观察者。发出值的形式为 `{ newValue, oldValue }`:
+这是一个添加到实例上的原型方法。你可以使用它来创建 stream， 该 stream 来自值的观察者。发出值的形式为 `{ newValue, oldValue }`:
 
 ``` js
 var vm = new Vue({
@@ -170,7 +170,7 @@ vm.$watchAsStream('a')
 
 #### `$eventToStream(event)`
 
-> 此功能需要 RxJS fromEvent 。
+> 此功能需要 XStream fromEvent  。
 
 将 vue.$on (包括生命周期事件) 转换成 Streams 。发出值的形式为 `{ name, msg }`:
 
@@ -193,14 +193,14 @@ xstream.periodic(500)
   .endWhen(beforeDestroy$)
 ```
 
-#### `$subscribeTo(observable, {next, error, complete})`
+#### `$addListenerTo(stream, {next, error, complete})`
 
 这是一个添加到实例上的原型方法。可以用它来订阅 stream，但是让 VueXS 来管理取消订阅 (removeListener)。
 
 ``` js
 var vm = new Vue({
   mounted () {
-    this.$subscribeTo(xstream.periodic(1000), {
+    this.$addListenerTo(xstream.periodic(1000), {
       next: function (count) {
         console.log(count)
       }
@@ -213,7 +213,7 @@ var vm = new Vue({
 
 > 此功能需要 XStream fromEvent。
 
-这是一个添加到实例上的原型方法。使用它从实例的元素的 DOM 事件创建 observable 。这类似于 `xstream fromEvent`，但即使在 DOM 实际渲染 之前，`subscriptions` 函数中也是可用的。
+这是一个添加到实例上的原型方法。使用它从实例的元素的 DOM 事件创建 stream 。这类似于 `XStream fromEvent`，但即使在 DOM 实际渲染 之前，`subscriptions` 函数中也是可用的。
 
 `selector` 用于寻找组件根元素的子孙节点，如果你想要监听根元素本身，那么传递 `null` 作为第一个参数
 
@@ -233,7 +233,7 @@ var vm = new Vue({
 
 将函数调用转换为发出调用参数的 stream 序列。
 
-这是一个添加到实例上的原型方法。用它来根据函数名称创建一个共享的热的 observable 。该函数会被赋值为一个 vm 方法。
+这是一个添加到实例上的原型方法。用它来根据函数名称创建一个共享的 stream 。该函数会被赋值为一个 vm 方法。
 
 ```html
 <custom-form :onSubmit="submitHandler"></custom-form>
@@ -248,11 +248,11 @@ var vm = new Vue({
   }
 })
 ```
-你可以使用 `observableMethods` 选项使其更为声明式:
+你可以使用 `streamMethods` 选项使其更为声明式:
 
 ``` js
 new Vue({
-  observableMethods: {
+  streamMethods: {
     submitHandler:'submitHandler$'
     // 或者使用数组简写形式: ['submitHandler']
   }
@@ -262,9 +262,9 @@ new Vue({
 上面的代码会自动地在实例上创建两样东西:
 
 1. `submitHandler` 方法，它可以使用 `v-on` 在模板中进行绑定。
-2. `submitHandler$` observalbe， 它是向 `submitHandler` 发出调用的流。
+2. `submitHandler$` stream， 它是向 `submitHandler` 发出调用的流。
 
-[示例](https://github.com/vuejs/vue-xs/blob/master/example/counter-function.html)
+[示例](https://github.com/skyline0705/vue-xs/blob/master/example/counter-function.html)
 
 ### 警告
 

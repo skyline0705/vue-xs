@@ -309,12 +309,12 @@ test('$watchAsStream()', done => {
   })
 })
 
-test('$subscribeTo()', () => {
+test('$addListenerTo()', () => {
   const { stream, next } = mock()
   const results = []
   const vm = new Vue({
     created () {
-      this.$subscribeTo(stream, {
+      this.$addListenerTo(stream, {
         next: count => {
           results.push(count)
         }
@@ -409,9 +409,9 @@ test('$createStreamMethod() with muli params & context', done => {
   })
 })
 
-test('observableMethods mixin', done => {
+test('streamMethods mixin', done => {
   const vm = new Vue({
-    observableMethods: ['add'],
+    streamMethods: ['add'],
     created () {
       this.add$
         .addListener({
@@ -428,9 +428,9 @@ test('observableMethods mixin', done => {
   })
 })
 
-test('observableMethods mixin', done => {
+test('streamMethods mixin', done => {
   const vm = new Vue({
-    observableMethods: { 'add': 'plus$' },
+    streamMethods: { 'add': 'plus$' },
     created () {
       this.plus$
         .addListener({

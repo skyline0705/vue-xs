@@ -62,7 +62,7 @@ new Vue({
 
 new Vue({
   mounted () {
-    this.$subscribeTo(xstream.periodic(1000), function (count) {
+    this.$addListenerTo(xstream.periodic(1000), function (count) {
       console.log(count)
     })
   }
