@@ -1,4 +1,4 @@
-/* global Vue, Rx */
+/* global Vue, XStream */
 
 import { install } from './util'
 import xsMixin from './mixin'

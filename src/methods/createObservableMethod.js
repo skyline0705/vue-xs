@@ -1,4 +1,4 @@
-import { Rx, hasXStream, warn } from '../util'
+import { xstream, hasXStream, warn } from '../util'
 
 /**
  * @name Vue.prototype.$createObservableMethod
@@ -12,16 +12,6 @@ export default function createObservableMethod (methodName, passContext) {
     return
   }
   const vm = this
-
-  if (!Rx.Observable.prototype.share) {
-    warn(
-      `No 'share' operator. ` +
-      `$createObservableMethod returns a shared hot observable. ` +
-      `Try import 'rxjs/add/operator/share' for creating ${methodName}`,
-      vm
-    )
-    return
-  }
 
   if (vm[methodName] !== undefined) {
     warn(
@@ -52,5 +42,5 @@ export default function createObservableMethod (methodName, passContext) {
   }
 
   // Must be a hot stream otherwise function context may overwrite over and over again
-  return Rx.Observable.create(creator).share()
+  return xstream.create(creator)
 }

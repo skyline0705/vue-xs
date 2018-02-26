@@ -1,4 +1,4 @@
-import { Rx, hasXStream } from '../util'
+import { xstream, hasXStream } from '../util'
 
 /**
  * @see {@link https://vuejs.org/v2/api/#vm-on}

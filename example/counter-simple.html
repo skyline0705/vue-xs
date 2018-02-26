@@ -29,7 +29,7 @@ new Vue({
     var plus$ = this.plus$.map(() => 1)
     var minus$ = this.minus$.map(() => -1)
     var more$ = this.more$.map(() => 100)
-    var count$ = Rx.Observable
+    var count$ = xstream
       .merge(plus$, minus$, more$)
       .startWith(0)
       .scan((total, change) => total + change)

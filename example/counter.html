@@ -52,7 +52,7 @@ new Vue({
   domStreams: ['plus$', 'minus$'],
 
   subscriptions () {
-    var count$ = Rx.Observable
+    var count$ = xstream
       .merge(
         this.plus$.map(() => 1),
         this.minus$.pluck('data')

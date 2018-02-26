@@ -1,4 +1,4 @@
-import { Rx, hasXStream, getDisposable } from '../util'
+import { xstream, hasXStream, getDisposable } from '../util'
 
 export default function watchAsObservable (expOrFn, options) {
   if (!hasXStream()) {

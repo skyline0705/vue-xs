@@ -9,7 +9,7 @@ export function install (_Vue, _xstream) {
 }
 
 export function hasXStream (vm) {
-  if (!Rx) {
+  if (!xstream) {
     warn(
       '$watchAsObservable requires XStream to be present globally or ' +
       'be passed to Vue.use() as the second argument.',

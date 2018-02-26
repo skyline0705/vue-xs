@@ -1,4 +1,4 @@
-import { Rx, hasXStream, isSubject, warn, getKey, unsub } from '../util'
+import { xstream, hasXStream, isSubject, warn, getKey, unsub } from '../util'
 
 export default {
   // Example ./example/counter_dir.html

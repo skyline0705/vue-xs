@@ -1,4 +1,4 @@
-import { Rx, hasXStream, getDisposable } from '../util'
+import { xstream, hasXStream, getDisposable } from '../util'
 
 export default function fromDOMEvent (selector, event) {
   if (!hasXStream()) {
