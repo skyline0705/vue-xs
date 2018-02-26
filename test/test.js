@@ -3,7 +3,7 @@
 'use strict'
 
 const Vue = require('vue/dist/vue.js')
-const VueRx = require('../dist/vue-rx.js')
+const VueXS = require('../dist/vue-xs.js')
 
 // library
 const Observable = require('rxjs/Observable').Observable
@@ -27,7 +27,7 @@ const miniRx = {
 }
 
 Vue.config.productionTip = false
-Vue.use(VueRx, miniRx)
+Vue.use(VueXS, miniRx)
 
 const nextTick = Vue.nextTick
 

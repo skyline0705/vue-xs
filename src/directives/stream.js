@@ -13,19 +13,19 @@ export default {
     const modifiers = binding.modifiers
 
     if (isStream(handle)) {
-      handle = { subject: handle }
-    } else if (!handle || !isStream(handle.subject)) {
+      handle = { stream: handle }
+    } else if (!handle || !isStream(handle.stream)) {
       warn(
-        'Invalid Subject found in directive with key "' + streamName + '".' +
+        'Invalid Stream found in directive with key "' + streamName + '".' +
         streamName + ' should be an instance of XStream or have the ' +
-        'type { subject: xstream, data: any }.',
+        'type { stream: xstream, data: any }.',
         vnode.context
       )
       return
     }
 
-    const subject = handle.subject
-    const next = subject.shamefullySendNext.bind(subject)
+    const stream = handle.stream
+    const next = stream.shamefullySendNext.bind(stream)
     if (!modifiers.native && vnode.componentInstance) {
       handle.subscription = vnode.componentInstance.$eventToObservable(event)
       handle.subscription.addListener({
@@ -65,7 +65,7 @@ export default {
   update (el, binding) {
     const handle = binding.value
     const _handle = el._rxHandles && el._rxHandles[getKey(binding)]
-    if (_handle && handle && isStream(handle.subject)) {
+    if (_handle && handle && isStream(handle.stream)) {
       _handle.data = handle.data
     }
   },

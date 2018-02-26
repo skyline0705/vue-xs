@@ -154,12 +154,12 @@
   <!-- simple usage -->
   <button v-stream:click="plus$">Add on Click</button>
 
-  <button v-stream:click="{ subject: plus$, data: minusDelta1, options:{once:true} }">Add on Click (Option once:true)</button>
+  <button v-stream:click="{ stream: plus$, data: minusDelta1, options:{once:true} }">Add on Click (Option once:true)</button>
 
-  <!-- you can also stream to the same subject with different events/data -->
+  <!-- you can also stream to the same stream with different events/data -->
   <button
-    v-stream:click="{ subject: minus$, data: minusDelta1 }"
-    v-stream:mousemove="{ subject: minus$, data: minusDelta2 }">
+    v-stream:click="{ stream: minus$, data: minusDelta1 }"
+    v-stream:mousemove="{ stream: minus$, data: minusDelta2 }">
     Minus on Click &amp; Mousemove
   </button>
 
@@ -192,7 +192,7 @@ new Vue({
     }, 5000)
   },
 
-  // declare dom stream Subjects
+  // declare dom stream Streams
   domStreams: ['plus$', 'minus$'],
 
   subscriptions () {
