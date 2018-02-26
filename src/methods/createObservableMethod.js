@@ -1,4 +1,4 @@
-import { Rx, hasRx, warn } from '../util'
+import { Rx, hasXStream, warn } from '../util'
 
 /**
  * @name Vue.prototype.$createObservableMethod
@@ -8,7 +8,7 @@ import { Rx, hasRx, warn } from '../util'
  * @return {Observable} Hot stream
  */
 export default function createObservableMethod (methodName, passContext) {
-  if (!hasRx()) {
+  if (!hasXStream()) {
     return
   }
   const vm = this

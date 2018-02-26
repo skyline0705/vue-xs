@@ -1,17 +1,17 @@
-export let Rx
+export let xstream
 export let Vue
 export let warn = function () {}
 
-export function install (_Vue, _Rx) {
-  Rx = _Rx
+export function install (_Vue, _xstream) {
+  xstream = _xstream
   Vue = _Vue
   warn = Vue.util.warn || warn
 }
 
-export function hasRx (vm) {
+export function hasXStream (vm) {
   if (!Rx) {
     warn(
-      '$watchAsObservable requires Rx to be present globally or ' +
+      '$watchAsObservable requires XStream to be present globally or ' +
       'be passed to Vue.use() as the second argument.',
       vm
     )

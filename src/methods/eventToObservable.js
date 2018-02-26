@@ -1,4 +1,4 @@
-import { Rx, hasRx } from '../util'
+import { Rx, hasXStream } from '../util'
 
 /**
  * @see {@link https://vuejs.org/v2/api/#vm-on}
@@ -6,7 +6,7 @@ import { Rx, hasRx } from '../util'
  * @return {Observable} Event stream
  */
 export default function eventToObservable (evtName) {
-  if (!hasRx()) {
+  if (!hasXStream()) {
     return
   }
   const vm = this

@@ -1,9 +1,9 @@
-import { Rx, hasRx, isSubject, warn, getKey, unsub } from '../util'
+import { Rx, hasXStream, isSubject, warn, getKey, unsub } from '../util'
 
 export default {
   // Example ./example/counter_dir.html
   bind (el, binding, vnode) {
-    if (!hasRx()) {
+    if (!hasXStream()) {
       return
     }
 
