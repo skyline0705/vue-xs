@@ -23,7 +23,7 @@ export default function createObservableMethod (methodName, passContext) {
   }
 
   const producer = {
-    start(listener) {
+    start (listener) {
       vm[methodName] = function () {
         const args = Array.from(arguments)
         if (passContext) {
@@ -38,7 +38,7 @@ export default function createObservableMethod (methodName, passContext) {
         }
       }
     },
-    stop() {
+    stop () {
       delete vm[methodName]
     }
   }

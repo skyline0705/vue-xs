@@ -42,7 +42,7 @@ export default {
         }
         vm._obSubscriptions.push(obs[key])
         obs[key].addListener({
-          next: value => vm[key] = value,
+          next: value => { vm[key] = value },
           error: error => { throw error }
         })
       })

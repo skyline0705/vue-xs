@@ -7,7 +7,7 @@ export default function watchAsObservable (expOrFn, options) {
 
   const vm = this
   const obs$ = xstream.Stream.create({
-    start(listener) {
+    start (listener) {
       const watch = () => {
         this._unwatch = vm.$watch(expOrFn, (newValue, oldValue) => {
           listener.next({ oldValue: oldValue, newValue: newValue })
@@ -22,7 +22,7 @@ export default function watchAsObservable (expOrFn, options) {
         vm.$once('hook:created', watch)
       }
     },
-    stop() {
+    stop () {
       // disconnects the $watch expression
       this._unwatch && this._unwatch()
       delete this._unwatch
