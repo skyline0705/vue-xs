@@ -1,0 +1,65 @@
+<script src="https://unpkg.com/jquery"></script>
+<script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="../dist/vue-rx.js"></script>
+
+<p>Type to search Wikipedia</p>
+
+<div id="el">
+  <input v-model="search">
+  <div v-if="results">
+    <h1>{{ results.term }}</h1>
+    <ul v-if="results.matches.length">
+      <li v-for="match in results.matches">
+        <a :href="match.url">{{ match.title }}</a>
+        <p>{{ match.description }}</p>
+      </li>
+    </ul>
+    <p v-else>
+      No matches found.
+    </p>
+  </div>
+</div>
+
+<script>
+function fetchTerm (term) {
+  return Rx.Observable.fromPromise($.ajax({
+    url: 'http://en.wikipedia.org/w/api.php',
+    dataType: 'jsonp',
+    data: {
+      action: 'opensearch',
+      format: 'json',
+      search: term
+    }
+  }).promise())
+}
+
+function formatResult (res) {
+  return {
+    term: res[0],
+    matches: res[1].map((title, i) => ({
+      title: title,
+      description: res[2][i],
+      url: res[3][i]
+    }))
+  }
+}
+
+var vm = new Vue({
+  el: '#el',
+  data: {
+    search: ''
+  },
+  subscriptions () {
+    return {
+      // this is the example in RxJS's readme.
+      results: this.$watchAsObservable('search')
+        .pluck('newValue')
+        .filter(text => text.length > 2)
+        .debounceTime(500)
+        .distinctUntilChanged()
+        .switchMap(fetchTerm)
+        .map(formatResult)
+    }
+  }
+})</script>
