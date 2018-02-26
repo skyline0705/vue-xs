@@ -1,7 +1,7 @@
-/* global Vue, Rx */
+/* global Vue, XStream */
 
 import { install } from './util'
-import rxMixin from './mixin'
+import xsMixin from './mixin'
 import streamDirective from './directives/stream'
 import watchAsObservable from './methods/watchAsObservable'
 import fromDOMEvent from './methods/fromDOMEvent'
@@ -9,9 +9,9 @@ import subscribeTo from './methods/subscribeTo'
 import eventToObservable from './methods/eventToObservable'
 import createObservableMethod from './methods/createObservableMethod'
 
-export default function VueRx (Vue, Rx) {
-  install(Vue, Rx)
-  Vue.mixin(rxMixin)
+export default function VueXS (Vue, xstream) {
+  install(Vue, xstream)
+  Vue.mixin(xsMixin)
   Vue.directive('stream', streamDirective)
   Vue.prototype.$watchAsObservable = watchAsObservable
   Vue.prototype.$fromDOMEvent = fromDOMEvent
@@ -21,6 +21,6 @@ export default function VueRx (Vue, Rx) {
 }
 
 // auto install
-if (typeof Vue !== 'undefined' && typeof Rx !== 'undefined') {
-  Vue.use(VueRx, Rx)
+if (typeof Vue !== 'undefined' && typeof xstream !== 'undefined') {
+  Vue.use(VueXS, xstream)
 }

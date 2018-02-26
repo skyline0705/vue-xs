@@ -1,4 +1,4 @@
-import { Rx, hasRx, warn } from '../util'
+import { xstream, hasXStream, warn } from '../util'
 
 /**
  * @name Vue.prototype.$createObservableMethod
@@ -8,20 +8,10 @@ import { Rx, hasRx, warn } from '../util'
  * @return {Observable} Hot stream
  */
 export default function createObservableMethod (methodName, passContext) {
-  if (!hasRx()) {
+  if (!hasXStream()) {
     return
   }
   const vm = this
-
-  if (!Rx.Observable.prototype.share) {
-    warn(
-      `No 'share' operator. ` +
-      `$createObservableMethod returns a shared hot observable. ` +
-      `Try import 'rxjs/add/operator/share' for creating ${methodName}`,
-      vm
-    )
-    return
-  }
 
   if (vm[methodName] !== undefined) {
     warn(
@@ -32,25 +22,27 @@ export default function createObservableMethod (methodName, passContext) {
     )
   }
 
-  const creator = function (observer) {
-    vm[methodName] = function () {
-      const args = Array.from(arguments)
-      if (passContext) {
-        args.push(this)
-        observer.next(args)
-      } else {
-        if (args.length <= 1) {
-          observer.next(args[0])
+  const producer = {
+    start(listener) {
+      vm[methodName] = function () {
+        const args = Array.from(arguments)
+        if (passContext) {
+          args.push(this)
+          listener.next(args)
         } else {
-          observer.next(args)
+          if (args.length <= 1) {
+            listener.next(args[0])
+          } else {
+            listener.next(args)
+          }
         }
       }
-    }
-    return function () {
+    },
+    stop() {
       delete vm[methodName]
     }
   }
 
   // Must be a hot stream otherwise function context may overwrite over and over again
-  return Rx.Observable.create(creator).share()
+  return xstream.Stream.create(producer)
 }

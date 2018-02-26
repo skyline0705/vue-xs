@@ -1,7 +1,7 @@
 {
   "name": "vue-xs",
   "version": "0.1.1",
-  "description": "RxJS bindings for Vue",
+  "description": "XStream bindings for Vue",
   "main": "dist/vue-xs.js",
   "files": [
     "dist",

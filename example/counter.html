@@ -1,8 +1,152 @@
 <!-- this demo requires a browser that natively supports ES2015 -->
 
-<script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
+<script src="https://unpkg.com/xstream/dist/xstream.js"></script>
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="../dist/vue-rx.js"></script>
+<script>
+    // TODO示例回头再重写吧……先跑通再说
+    var DOMEventProducer = /** @class */ (function () {
+      function DOMEventProducer(node, eventType, useCapture) {
+          this.node = node;
+          this.eventType = eventType;
+          this.useCapture = useCapture;
+          this.type = 'fromEvent';
+      }
+      DOMEventProducer.prototype._start = function (out) {
+          this.listener = function (e) { return out._n(e); };
+          this.node.addEventListener(this.eventType, this.listener, this.useCapture);
+      };
+      DOMEventProducer.prototype._stop = function () {
+          this.node.removeEventListener(this.eventType, this.listener, this.useCapture);
+          this.listener = null;
+      };
+      return DOMEventProducer;
+  }());
+  var NodeEventProducer = /** @class */ (function () {
+      function NodeEventProducer(node, eventName) {
+          this.node = node;
+          this.eventName = eventName;
+          this.type = 'fromEvent';
+      }
+      NodeEventProducer.prototype._start = function (out) {
+          this.listener = function () {
+              var args = [];
+              for (var _i = 0; _i < arguments.length; _i++) {
+                  args[_i] = arguments[_i];
+              }
+              return (args.length > 1) ? out._n(args) : out._n(args[0]);
+          };
+          this.node.addListener(this.eventName, this.listener);
+      };
+      NodeEventProducer.prototype._stop = function () {
+          this.node.removeListener(this.eventName, this.listener);
+          this.listener = null;
+      };
+      return NodeEventProducer;
+  }());
+  function isEmitter(element) {
+      return element.emit && element.addListener;
+  }
+  /**
+   * Creates a stream based on either:
+   * - DOM events with the name `eventName` from a provided target node
+   * - Events with the name `eventName` from a provided NodeJS EventEmitter
+   *
+   * When creating a stream from EventEmitters, if the source event has more than
+   * one argument all the arguments will be aggregated into an array in the
+   * result stream.
+   *
+   * (Tip: when using this factory with TypeScript, you will need types for
+   * Node.js because fromEvent knows how to handle both DOM events and Node.js
+   * EventEmitter. Just install `@types/node`)
+   *
+   * Marble diagram:
+   *
+   * ```text
+   *   fromEvent(element, eventName)
+   * ---ev--ev----ev---------------
+   * ```
+   *
+   * Examples:
+   *
+   * ```js
+   * import fromEvent from 'xstream/extra/fromEvent'
+   *
+   * const stream = fromEvent(document.querySelector('.button'), 'click')
+   *   .mapTo('Button clicked!')
+   *
+   * stream.addListener({
+   *   next: i => console.log(i),
+   *   error: err => console.error(err),
+   *   complete: () => console.log('completed')
+   * })
+   * ```
+   *
+   * ```text
+   * > 'Button clicked!'
+   * > 'Button clicked!'
+   * > 'Button clicked!'
+   * ```
+   *
+   * ```js
+   * import fromEvent from 'xstream/extra/fromEvent'
+   * import {EventEmitter} from 'events'
+   *
+   * const MyEmitter = new EventEmitter()
+   * const stream = fromEvent(MyEmitter, 'foo')
+   *
+   * stream.addListener({
+   *   next: i => console.log(i),
+   *   error: err => console.error(err),
+   *   complete: () => console.log('completed')
+   * })
+   *
+   * MyEmitter.emit('foo', 'bar')
+   * ```
+   *
+   * ```text
+   * > 'bar'
+   * ```
+   *
+   * ```js
+   * import fromEvent from 'xstream/extra/fromEvent'
+   * import {EventEmitter} from 'events'
+   *
+   * const MyEmitter = new EventEmitter()
+   * const stream = fromEvent(MyEmitter, 'foo')
+   *
+   * stream.addListener({
+   *   next: i => console.log(i),
+   *   error: err => console.error(err),
+   *   complete: () => console.log('completed')
+   * })
+   *
+   * MyEmitter.emit('foo', 'bar', 'baz', 'buzz')
+   * ```
+   *
+   * ```text
+   * > ['bar', 'baz', 'buzz']
+   * ```
+   *
+   * @factory true
+   * @param {EventTarget|EventEmitter} element The element upon which to listen.
+   * @param {string} eventName The name of the event for which to listen.
+   * @param {boolean?} useCapture An optional boolean that indicates that events of
+   * this type will be dispatched to the registered listener before being
+   * dispatched to any EventTarget beneath it in the DOM tree. Defaults to false.
+   * @return {Stream}
+   */
+  function fromEvent(element, eventName, useCapture) {
+      if (useCapture === void 0) { useCapture = false; }
+      if (isEmitter(element)) {
+          return new xstream.Stream(new NodeEventProducer(element, eventName));
+      }
+      else {
+          return new xstream.Stream(new DOMEventProducer(element, eventName, useCapture));
+      }
+  }
+  xstream.fromEvent = fromEvent
+</script>
+<script src="../dist/vue-xs.js"></script>
 
 <div id="app">
   <div>{{ count }}</div>
@@ -52,13 +196,12 @@ new Vue({
   domStreams: ['plus$', 'minus$'],
 
   subscriptions () {
-    var count$ = Rx.Observable
+    var count$ = xstream.default
       .merge(
         this.plus$.map(() => 1),
-        this.minus$.pluck('data')
+        this.minus$.map(val => val.data)
       )
-      .startWith(0)
-      .scan((total, change) => total + change)
+      .fold((total, change) => total + change, 0)
 
     return {
       count: count$
