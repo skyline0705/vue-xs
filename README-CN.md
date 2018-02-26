@@ -1,27 +1,28 @@
 # vue-xs
 
 [^_^]:
+  TODO
   [![Build Status](https://circleci.com/gh/vuejs/vue-rx/tree/master.svg?style=shield)](https://circleci.com/gh/vuejs/vue-rx/tree/master)
 
 [English](README.md) | 简体中文
 
-Vue.js 的简单 [RxJS](https://github.com/Reactive-Extensions/RxJS) 绑定。它还支撑实现 `.subscribe` 和 `.unsubscribe` (或 `.dispose`) 接口的通用 observables 的订阅。举例来说，你可以使用它来订阅 `most.js` 或 Falcor 流，但是某些功能需要 RxJS 才能运行。
+Vue.js 的简单 [xstream](https://github.com/staltz/xstream) 绑定。它还支撑实现 `.addListener` 和 `.removeListener` 接口的通用 observables 的订阅。举例来说，你可以使用它来订阅 `most.js` 或 Falcor 流，但是某些功能需要 xstream 才能运行。
 
 ### 安装
 
 #### NPM + ES2015
 
 ``` bash
-npm install vue vue-rx rxjs --save
+npm install vue vue-xs xstream --save
 ```
 
 ``` js
 import Vue from 'vue'
-import Rx from 'rxjs/Rx'
-import VueRx from 'vue-rx'
+import xstream from 'xstream'
+import VueXS from 'vue-xs'
 
 // 搞定!
-Vue.use(VueRx, Rx)
+Vue.use(VueXS, {xstream})
 ```
 
 #### 减少 Bundle 体积小贴士
@@ -30,13 +31,13 @@ Vue.use(VueRx, Rx)
 
 ``` js
 import Vue from 'vue'
-import VueRx from 'vue-rx'
+import VueXS from 'vue-xs'
 import { Observable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription' // 如果使用 RxJS 4 可自由使用
 import { Subject } from 'rxjs/Subject' // domStreams 选项所需
 
 // 搞定!
-Vue.use(VueRx, {
+Vue.use(VueXS, {
   Observable,
   Subscription,
   Subject
@@ -45,7 +46,7 @@ Vue.use(VueRx, {
 
 #### 全局性脚本
 
-只需确保在 Vue.js 和 RxJS 之后引入 `vue-rx.js` 。它会自动安装。
+只需确保在 Vue.js 和 RxJS 之后引入 `vue-xs.js` 。它会自动安装。
 
 ### 用法
 
@@ -94,7 +95,7 @@ vm.$observables.msg.subscribe(msg => console.log(msg))
 
 > 此功能需要 RxJS 。
 
-`vue-rx` 提供了 `v-stream` 指令，它允许你将 DOM 事件流式传递给 Rx Subject 。语法类似于 `v-on` ，其中指令参数是事件名称，绑定值是目标 Rx Subject 。
+`vue-xs` 提供了 `v-stream` 指令，它允许你将 DOM 事件流式传递给 Rx Subject 。语法类似于 `v-on` ，其中指令参数是事件名称，绑定值是目标 Rx Subject 。
 
 ``` html
 <button v-stream:click="plus$">+</button>
@@ -152,7 +153,7 @@ const plusData$ = this.plus$.pluck('data')
 }">+</button>
 ```
 
-对于实际用法，请参见[示例](https://github.com/vuejs/vue-rx/blob/master/example/counter.html)。
+对于实际用法，请参见[示例](https://github.com/vuejs/vue-xs/blob/master/example/counter.html)。
 
 ### 其他 API 方法
 
@@ -202,7 +203,7 @@ var vm = new Vue({
   }
 })
 
-// vm.$once 的 vue-rx 版本
+// vm.$once 的 vue-xs 版本
 this.$eventToObservable('customEvent')
   .take(1)
   
@@ -213,7 +214,7 @@ Rx.Observable.interval(500)
 
 #### `$subscribeTo(observable, next, error, complete)`
 
-这是一个添加到实例上的原型方法。可以用它来订阅 obserable，但是让 VueRx 来管理清理 (dispose) 和取消订阅 (unsubscribe)。
+这是一个添加到实例上的原型方法。可以用它来订阅 obserable，但是让 VueXS 来管理清理 (dispose) 和取消订阅 (unsubscribe)。
 
 ``` js
 var vm = new Vue({
@@ -280,7 +281,7 @@ new Vue({
 1. `submitHandler` 方法，它可以使用 `v-on` 在模板中进行绑定。
 2. `submitHandler$` observalbe， 它是向 `submitHandler` 发出调用的流。
 
-[示例](https://github.com/vuejs/vue-rx/blob/master/example/counter-function.html)
+[示例](https://github.com/vuejs/vue-xs/blob/master/example/counter-function.html)
 
 ### 警告
 
