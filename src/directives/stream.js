@@ -1,4 +1,4 @@
-import { xstream, hasXStream, warn, getKey, unsub } from '../util'
+import { xstream, hasXStream, isStream, warn, getKey, unsub } from '../util'
 
 export default {
   // Example ./example/counter_dir.html
@@ -7,10 +7,22 @@ export default {
       return
     }
 
-    let handle = { subject: binding.value }
+    let handle = binding.value
     const event = binding.arg
     const streamName = binding.expression
     const modifiers = binding.modifiers
+
+    if (isStream(handle)) {
+      handle = { subject: handle }
+    } else if (!handle || !isStream(handle.subject)) {
+      warn(
+        'Invalid Subject found in directive with key "' + streamName + '".' +
+        streamName + ' should be an instance of XStream or have the ' +
+        'type { subject: xstream, data: any }.',
+        vnode.context
+      )
+      return
+    }
 
     const subject = handle.subject
     const next = subject.shamefullySendNext.bind(subject)
@@ -53,13 +65,12 @@ export default {
   update (el, binding) {
     const handle = binding.value
     const _handle = el._rxHandles && el._rxHandles[getKey(binding)]
-    if (_handle && handle) {
+    if (_handle && handle && isStream(handle.subject)) {
       _handle.data = handle.data
     }
   },
 
   unbind (el, binding) {
-    debugger
     const key = getKey(binding)
     const handle = el._rxHandles && el._rxHandles[key]
     if (handle) {
