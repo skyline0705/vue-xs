@@ -3,21 +3,21 @@
 import { install } from './util'
 import xsMixin from './mixin'
 import streamDirective from './directives/stream'
-import watchAsObservable from './methods/watchAsObservable'
+import watchAsStream from './methods/watchAsStream'
 import fromDOMEvent from './methods/fromDOMEvent'
 import subscribeTo from './methods/subscribeTo'
-import eventToObservable from './methods/eventToObservable'
-import createObservableMethod from './methods/createObservableMethod'
+import eventToStream from './methods/eventToStream'
+import createStreamMethod from './methods/createStreamMethod'
 
 export default function VueXS (Vue, xstream) {
   install(Vue, xstream)
   Vue.mixin(xsMixin)
   Vue.directive('stream', streamDirective)
-  Vue.prototype.$watchAsObservable = watchAsObservable
+  Vue.prototype.$watchAsStream = watchAsStream
   Vue.prototype.$fromDOMEvent = fromDOMEvent
   Vue.prototype.$subscribeTo = subscribeTo
-  Vue.prototype.$eventToObservable = eventToObservable
-  Vue.prototype.$createObservableMethod = createObservableMethod
+  Vue.prototype.$eventToStream = eventToStream
+  Vue.prototype.$createStreamMethod = createStreamMethod
 }
 
 // auto install

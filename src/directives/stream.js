@@ -27,7 +27,7 @@ export default {
     const stream = handle.stream
     const next = stream.shamefullySendNext.bind(stream)
     if (!modifiers.native && vnode.componentInstance) {
-      handle.subscription = vnode.componentInstance.$eventToObservable(event)
+      handle.subscription = vnode.componentInstance.$eventToStream(event)
       handle.subscription.addListener({
         next: e => {
           next({

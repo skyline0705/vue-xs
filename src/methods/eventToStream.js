@@ -5,7 +5,7 @@ import { xstream, hasXStream } from '../util'
  * @param {String||Array} evtName Event name
  * @return {Observable} Event stream
  */
-export default function eventToObservable (evtName) {
+export default function eventToStream (evtName) {
   if (!hasXStream()) {
     return
   }

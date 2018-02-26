@@ -153,7 +153,7 @@ See [example](https://github.com/vuejs/vue-rx/blob/master/example/counter.html) 
 
 ### Other API Methods
 
-#### `$watchAsObservable(expOrFn, [options])`
+#### `$watchAsStream(expOrFn, [options])`
 
 > This feature requires RxJS.
 
@@ -167,7 +167,7 @@ var vm = new Vue({
   subscriptions () {
     // declaratively map to another property with Rx operators
     return {
-      aPlusOne: this.$watchAsObservable('a')
+      aPlusOne: this.$watchAsStream('a')
         .pluck('newValue')
         .map(a => a + 1)
     }
@@ -175,7 +175,7 @@ var vm = new Vue({
 })
 
 // or produce side effects...
-vm.$watchAsObservable('a')
+vm.$watchAsStream('a')
   .subscribe(
     ({ newValue, oldValue }) => console.log('stream value', newValue, oldValue),
     err => console.error(err),
@@ -185,7 +185,7 @@ vm.$watchAsObservable('a')
 
 The optional `options` object accepts the same options as `vm.$watch`.
 
-#### `$eventToObservable(event)`
+#### `$eventToStream(event)`
 
 > This feature requires RxJS.
 
@@ -194,17 +194,17 @@ Convert vue.$on (including lifecycle events) to Observables. The emitted value i
 ``` js
 var vm = new Vue({
   created () {
-    this.$eventToObservable('customEvent')
+    this.$eventToStream('customEvent')
 	  .subscribe((event) => console.log(event.name,event.msg))
   }
 })
 
 // vm.$once vue-rx version
-this.$eventToObservable('customEvent')
+this.$eventToStream('customEvent')
   .take(1)
 
 // Another way to auto unsub:
-let beforeDestroy$ = this.$eventToObservable('hook:beforeDestroy').take(1)
+let beforeDestroy$ = this.$eventToStream('hook:beforeDestroy').take(1)
 Rx.Observable.interval(500)
   .takeUntil(beforeDestroy$)
 ```
@@ -241,7 +241,7 @@ var vm = new Vue({
 })
 ```
 
-#### `$createObservableMethod(methodName)`
+#### `$createStreamMethod(methodName)`
 
 > This feature requires RxJS.
 
@@ -257,7 +257,7 @@ var vm = new Vue({
   subscriptions () {
     return {
       // requires `share` operator
-      formData: this.$createObservableMethod('submitHandler')
+      formData: this.$createStreamMethod('submitHandler')
     }
   }
 })

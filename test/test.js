@@ -36,7 +36,7 @@ function click (target) {
   trigger(target, 'click')
 }
 
-test('expose $observables', () => {
+test('expose $streams', () => {
   const { stream, next } = mock()
 
   const vm = new Vue({
@@ -46,7 +46,7 @@ test('expose $observables', () => {
   })
 
   const results = []
-  vm.$observables.hello.addListener({
+  vm.$streams.hello.addListener({
     next: val => {
       results.push(val)
     }
@@ -281,7 +281,7 @@ test('$fromDOMEvent()', done => {
   })
 })
 
-test('$watchAsObservable()', done => {
+test('$watchAsStream()', done => {
   const vm = new Vue({
     data: {
       count: 0
@@ -289,7 +289,7 @@ test('$watchAsObservable()', done => {
   })
 
   const results = []
-  vm.$watchAsObservable('count').addListener({
+  vm.$watchAsStream('count').addListener({
     next: change => {
       results.push(change)
     }
@@ -332,11 +332,11 @@ test('$subscribeTo()', () => {
   })
 })
 
-test('$eventToObservable()', done => {
+test('$eventToStream()', done => {
   let calls = 0
   const vm = new Vue({
     created () {
-      this.$eventToObservable('ping')
+      this.$eventToStream('ping')
         .addListener({
           next: function (event) {
             expect(event.name).toEqual('ping')
@@ -357,10 +357,10 @@ test('$eventToObservable()', done => {
   })
 })
 
-test('$eventToObservable() with lifecycle hooks', done => {
+test('$eventToStream() with lifecycle hooks', done => {
   const vm = new Vue({
     created () {
-      this.$eventToObservable('hook:beforeDestroy')
+      this.$eventToStream('hook:beforeDestroy')
         .addListener({
           next: () => {
             done()
@@ -373,10 +373,10 @@ test('$eventToObservable() with lifecycle hooks', done => {
   })
 })
 
-test('$createObservableMethod() with no context', done => {
+test('$createStreamMethod() with no context', done => {
   const vm = new Vue({
     created () {
-      this.$createObservableMethod('add')
+      this.$createStreamMethod('add')
         .addListener({
           next: function (param) {
             expect(param).toEqual('hola')
@@ -390,10 +390,10 @@ test('$createObservableMethod() with no context', done => {
   })
 })
 
-test('$createObservableMethod() with muli params & context', done => {
+test('$createStreamMethod() with muli params & context', done => {
   const vm = new Vue({
     created () {
-      this.$createObservableMethod('add', true)
+      this.$createStreamMethod('add', true)
         .addListener({
           next: function (param) {
             expect(param[0]).toEqual('hola')

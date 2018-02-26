@@ -35,7 +35,7 @@ const vm2 = new Vue({
   subscriptions () {
     // declaratively map to another property with Rx operators
     return {
-      aPlusOne: this.$watchAsObservable('a')
+      aPlusOne: this.$watchAsStream('a')
         .map(({newValue}) => newValue)
         .map((a: number) => a + 1)
     }
@@ -43,7 +43,7 @@ const vm2 = new Vue({
 })
 
 // or produce side effects...
-vm2.$watchAsObservable('a')
+vm2.$watchAsStream('a')
   .addListener({
     next: ({ newValue, oldValue }) => console.log('stream value', newValue, oldValue),
     error: err => console.error(err),
@@ -53,7 +53,7 @@ vm2.$watchAsObservable('a')
 
 new Vue({
   created () {
-    this.$eventToObservable('customEvent')
+    this.$eventToStream('customEvent')
     .addListener({
       next: (event) => console.log(event.name,event.msg)
     })
@@ -80,7 +80,7 @@ new Vue({
   subscriptions () {
     return {
       // requires `share` operator
-      formData: this.$createObservableMethod('submitHandler')
+      formData: this.$createStreamMethod('submitHandler')
     }
   }
 })
@@ -89,7 +89,7 @@ new Vue({
   subscriptions () {
     return {
       // requires `share` operator
-      formData: this.$createObservableMethod('submitHandler')
+      formData: this.$createStreamMethod('submitHandler')
     }
   }
 })

@@ -1,6 +1,6 @@
 import { xstream, hasXStream } from '../util'
 
-export default function watchAsObservable (expOrFn, options) {
+export default function watchAsStream (expOrFn, options) {
   if (!hasXStream()) {
     return
   }
@@ -13,7 +13,7 @@ export default function watchAsObservable (expOrFn, options) {
           listener.next({ oldValue: oldValue, newValue: newValue })
         }, options)
       }
-      // if $watchAsObservable is called inside the subscriptions function,
+      // if $watchAsStream is called inside the subscriptions function,
       // because data hasn't been observed yet, the watcher will not work.
       // in that case, wait until created hook to watch.
       if (vm._data) {

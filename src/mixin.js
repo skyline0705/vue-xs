@@ -14,11 +14,11 @@ export default {
     if (observableMethods) {
       if (Array.isArray(observableMethods)) {
         observableMethods.forEach(methodName => {
-          vm[ methodName + '$' ] = vm.$createObservableMethod(methodName)
+          vm[ methodName + '$' ] = vm.$createStreamMethod(methodName)
         })
       } else {
         Object.keys(observableMethods).forEach(methodName => {
-          vm[observableMethods[methodName]] = vm.$createObservableMethod(methodName)
+          vm[observableMethods[methodName]] = vm.$createStreamMethod(methodName)
         })
       }
     }
@@ -28,11 +28,11 @@ export default {
       obs = obs.call(vm)
     }
     if (obs) {
-      vm.$observables = {}
+      vm.$streams = {}
       vm._obSubscriptions = []
       Object.keys(obs).forEach(key => {
         defineReactive(vm, key, undefined)
-        const ob = vm.$observables[key] = obs[key]
+        const ob = vm.$streams[key] = obs[key]
         if (!isStream(ob)) {
           warn(
             'Invalid Stream found in subscriptions option with key "' + key + '".',
