@@ -1,33 +1,33 @@
 import Vue from 'vue'
 import { WatchOptions } from 'vue'
-import { Observable } from 'rxjs/Observable'
+import xstream from 'xstream'
 
-export type Observables = Record<string, Observable<any>>
+export type Streams = Record<string, xstream<any>>
 declare module 'vue/types/options' {
   interface ComponentOptions<V extends Vue> {
-    subscriptions?: Observables | ((this: V) => Observables)
+    subscriptions?: Streams | ((this: V) => Streams)
     domStreams?: string[]
-    observableMethods?: string[] | Record<string, string>
+    streamMethods?: string[] | Record<string, string>
   }
 }
 
-export interface WatchObservable<T> {
+export interface WatchStream<T> {
   newValue: T
   oldValue: T
 }
 declare module "vue/types/vue" {
   interface Vue {
-    $observables: Observables;
-    $watchAsObservable(expr: string, options?: WatchOptions): Observable<WatchObservable<any>>
-    $watchAsObservable<T>(fn: (this: this) => T, options?: WatchOptions): Observable<WatchObservable<T>>
-    $eventToObservable(event: string): Observable<{name: string, msg: any}>
-    $subscribeTo<T>(
-      observable: Observable<T>,
+    $streams: Streams;
+    $watchAsStream(expr: string, options?: WatchOptions): xstream<WatchStream<any>>
+    $watchAsStream<T>(fn: (this: this) => T, options?: WatchOptions): xstream<WatchStream<T>>
+    $eventToStream(event: string): xstream<{name: string, msg: any}>
+    $addListenerTo<T>(
+      stream: xstream<T>,
       next: (t: T) => void,
       error?: (e: any) => void,
       complete?: () => void): void
-    $fromDOMEvent(selector: string | null, event: string): Observable<Event>
-    $createObservableMethod(methodName: string): Observable<any>
+    $fromDOMEvent(selector: string | null, event: string): xstream<Event>
+    $createStreamMethod(methodName: string): xstream<any>
   }
 }
 

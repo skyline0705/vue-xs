@@ -3,42 +3,26 @@
 'use strict'
 
 const Vue = require('vue/dist/vue.js')
-const VueRx = require('../dist/vue-rx.js')
+const VueXS = require('../dist/vue-xs.js')
+const Stream = require('xstream').Stream
 
-// library
-const Observable = require('rxjs/Observable').Observable
-const Subject = require('rxjs/Subject').Subject
-const Subscription = require('rxjs/Subscription').Subscription
-require('rxjs/add/observable/fromEvent')
-require('rxjs/add/operator/share')
-
-// user
-require('rxjs/add/operator/map')
-require('rxjs/add/operator/startWith')
-require('rxjs/add/operator/scan')
-require('rxjs/add/operator/pluck')
-require('rxjs/add/operator/merge')
-require('rxjs/add/operator/filter')
-
-const miniRx = {
-  Observable,
-  Subscription,
-  Subject
-}
+const fromEvent = require('xstream/extra/fromEvent').default
 
 Vue.config.productionTip = false
-Vue.use(VueRx, miniRx)
+Vue.use(VueXS, { Stream, fromEvent })
 
 const nextTick = Vue.nextTick
 
 function mock () {
-  let observer
-  const observable = Observable.create(_observer => {
-    observer = _observer
+  let listener
+  const stream = Stream.create({
+    start: _listener => { listener = _listener },
+    stop: () => { listener = null }
   })
+
   return {
-    ob: observable,
-    next: val => observer.next(val)
+    stream,
+    next: val => listener.next(val)
   }
 }
 
@@ -52,18 +36,20 @@ function click (target) {
   trigger(target, 'click')
 }
 
-test('expose $observables', () => {
-  const { ob, next } = mock()
+test('expose $streams', () => {
+  const { stream, next } = mock()
 
   const vm = new Vue({
     subscriptions: {
-      hello: ob.startWith(0)
+      hello: stream.startWith(0)
     }
   })
 
   const results = []
-  vm.$observables.hello.subscribe(val => {
-    results.push(val)
+  vm.$streams.hello.addListener({
+    next: val => {
+      results.push(val)
+    }
   })
 
   next(1)
@@ -73,11 +59,11 @@ test('expose $observables', () => {
 })
 
 test('bind subscriptions to render', done => {
-  const { ob, next } = mock()
+  const { stream, next } = mock()
 
   const vm = new Vue({
     subscriptions: {
-      hello: ob.startWith('foo')
+      hello: stream.startWith('foo')
     },
     render (h) {
       return h('div', this.hello)
@@ -94,7 +80,7 @@ test('bind subscriptions to render', done => {
 })
 
 test('subscriptions() has access to component state', () => {
-  const { ob } = mock()
+  const { stream } = mock()
 
   const vm = new Vue({
     data: {
@@ -106,7 +92,7 @@ test('subscriptions() has access to component state', () => {
     },
     subscriptions () {
       return {
-        hello: ob.startWith(this.foo + this.bar)
+        hello: stream.startWith(this.foo + this.bar)
       }
     },
     render (h) {
@@ -118,12 +104,12 @@ test('subscriptions() has access to component state', () => {
 })
 
 test('subscriptions() can throw error properly', done => {
-  const { ob, next } = mock()
+  const { stream, next } = mock()
 
   const vm = new Vue({
     subscriptions () {
       return {
-        num: ob.startWith(1).map(n => n.toFixed())
+        num: stream.startWith(1).map(n => n.toFixed())
       }
     },
     render (h) {
@@ -152,8 +138,7 @@ test('v-stream directive (basic)', done => {
     subscriptions () {
       return {
         count: this.click$.map(() => 1)
-          .startWith(0)
-          .scan((total, change) => total + change)
+          .fold((total, change) => total + change, 0)
       }
     }
   }).$mount()
@@ -183,12 +168,13 @@ test('v-stream directive (with .native modify)', done => {
     domStreams: ['clickNative$', 'click$'],
     subscriptions () {
       return {
-        count: this.clickNative$
-          .merge(this.click$)
+        count: Stream.merge(
+          this.clickNative$,
+          this.click$
+        )
           .filter(e => e.event.target && e.event.target.id === 'btn-native')
           .map(() => 1)
-          .startWith(0)
-          .scan((total, change) => total + change)
+          .fold((total, change) => total + change, 0)
       }
     }
   }).$mount()
@@ -211,15 +197,14 @@ test('v-stream directive (with data)', done => {
     template: `
       <div>
         <span class="count">{{ count }}</span>
-        <button v-stream:click="{ subject: click$, data: delta }">+</button>
+        <button v-stream:click="{ stream: click$, data: delta }">+</button>
       </div>
     `,
     domStreams: ['click$'],
     subscriptions () {
       return {
-        count: this.click$.pluck('data')
-          .startWith(0)
-          .scan((total, change) => total + change)
+        count: this.click$.map(({ data }) => data)
+          .fold((total, change) => total + change, 0)
       }
     }
   }).$mount()
@@ -245,16 +230,15 @@ test('v-stream directive (multiple bindings on same node)', done => {
       <div>
         <span class="count">{{ count }}</span>
         <button
-          v-stream:click="{ subject: plus$, data: 1 }"
-          v-stream:keyup="{ subject: plus$, data: -1 }">+</button>
+          v-stream:click="{ stream: plus$, data: 1 }"
+          v-stream:keyup="{ stream: plus$, data: -1 }">+</button>
       </div>
     `,
     domStreams: ['plus$'],
     subscriptions () {
       return {
-        count: this.plus$.pluck('data')
-          .startWith(0)
-          .scan((total, change) => total + change)
+        count: this.plus$.map(({ data }) => data)
+          .fold((total, change) => total + change, 0)
       }
     }
   }).$mount()
@@ -283,8 +267,7 @@ test('$fromDOMEvent()', done => {
       const click$ = this.$fromDOMEvent('button', 'click')
       return {
         count: click$.map(() => 1)
-          .startWith(0)
-          .scan((total, change) => total + change)
+          .fold((total, change) => total + change, 0)
       }
     }
   }).$mount()
@@ -298,7 +281,7 @@ test('$fromDOMEvent()', done => {
   })
 })
 
-test('$watchAsObservable()', done => {
+test('$watchAsStream()', done => {
   const vm = new Vue({
     data: {
       count: 0
@@ -306,8 +289,10 @@ test('$watchAsObservable()', done => {
   })
 
   const results = []
-  vm.$watchAsObservable('count').subscribe(change => {
-    results.push(change)
+  vm.$watchAsStream('count').addListener({
+    next: change => {
+      results.push(change)
+    }
   })
 
   vm.count++
@@ -324,13 +309,15 @@ test('$watchAsObservable()', done => {
   })
 })
 
-test('$subscribeTo()', () => {
-  const { ob, next } = mock()
+test('$addListenerTo()', () => {
+  const { stream, next } = mock()
   const results = []
   const vm = new Vue({
     created () {
-      this.$subscribeTo(ob, count => {
-        results.push(count)
+      this.$addListenerTo(stream, {
+        next: count => {
+          results.push(count)
+        }
       })
     }
   })
@@ -339,19 +326,23 @@ test('$subscribeTo()', () => {
   expect(results).toEqual([1])
 
   vm.$destroy()
-  next(2)
-  expect(results).toEqual([1]) // should not trigger anymore
+  setTimeout(() => {
+    next(2)
+    expect(results).toEqual([1]) // should not trigger anymore
+  })
 })
 
-test('$eventToObservable()', done => {
+test('$eventToStream()', done => {
   let calls = 0
   const vm = new Vue({
     created () {
-      this.$eventToObservable('ping')
-        .subscribe(function (event) {
-          expect(event.name).toEqual('ping')
-          expect(event.msg).toEqual('ping message')
-          calls++
+      this.$eventToStream('ping')
+        .addListener({
+          next: function (event) {
+            expect(event.name).toEqual('ping')
+            expect(event.msg).toEqual('ping message')
+            calls++
+          }
         })
     }
   })
@@ -366,12 +357,14 @@ test('$eventToObservable()', done => {
   })
 })
 
-test('$eventToObservable() with lifecycle hooks', done => {
+test('$eventToStream() with lifecycle hooks', done => {
   const vm = new Vue({
     created () {
-      this.$eventToObservable('hook:beforeDestroy')
-        .subscribe(() => {
-          done()
+      this.$eventToStream('hook:beforeDestroy')
+        .addListener({
+          next: () => {
+            done()
+          }
         })
     }
   })
@@ -380,13 +373,15 @@ test('$eventToObservable() with lifecycle hooks', done => {
   })
 })
 
-test('$createObservableMethod() with no context', done => {
+test('$createStreamMethod() with no context', done => {
   const vm = new Vue({
     created () {
-      this.$createObservableMethod('add')
-        .subscribe(function (param) {
-          expect(param).toEqual('hola')
-          done()
+      this.$createStreamMethod('add')
+        .addListener({
+          next: function (param) {
+            expect(param).toEqual('hola')
+            done()
+          }
         })
     }
   })
@@ -395,15 +390,17 @@ test('$createObservableMethod() with no context', done => {
   })
 })
 
-test('$createObservableMethod() with muli params & context', done => {
+test('$createStreamMethod() with muli params & context', done => {
   const vm = new Vue({
     created () {
-      this.$createObservableMethod('add', true)
-        .subscribe(function (param) {
-          expect(param[0]).toEqual('hola')
-          expect(param[1]).toEqual('mundo')
-          expect(param[2]).toEqual(vm)
-          done()
+      this.$createStreamMethod('add', true)
+        .addListener({
+          next: function (param) {
+            expect(param[0]).toEqual('hola')
+            expect(param[1]).toEqual('mundo')
+            expect(param[2]).toEqual(vm)
+            done()
+          }
         })
     }
   })
@@ -412,15 +409,17 @@ test('$createObservableMethod() with muli params & context', done => {
   })
 })
 
-test('observableMethods mixin', done => {
+test('streamMethods mixin', done => {
   const vm = new Vue({
-    observableMethods: ['add'],
+    streamMethods: ['add'],
     created () {
       this.add$
-        .subscribe(function (param) {
-          expect(param[0]).toEqual('Qué')
-          expect(param[1]).toEqual('tal')
-          done()
+        .addListener({
+          next: function (param) {
+            expect(param[0]).toEqual('Qué')
+            expect(param[1]).toEqual('tal')
+            done()
+          }
         })
     }
   })
@@ -429,15 +428,17 @@ test('observableMethods mixin', done => {
   })
 })
 
-test('observableMethods mixin', done => {
+test('streamMethods mixin', done => {
   const vm = new Vue({
-    observableMethods: { 'add': 'plus$' },
+    streamMethods: { 'add': 'plus$' },
     created () {
       this.plus$
-        .subscribe(function (param) {
-          expect(param[0]).toEqual('Qué')
-          expect(param[1]).toEqual('tal')
-          done()
+        .addListener({
+          next: function (param) {
+            expect(param[0]).toEqual('Qué')
+            expect(param[1]).toEqual('tal')
+            done()
+          }
         })
     }
   })

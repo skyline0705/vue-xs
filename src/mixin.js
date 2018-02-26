@@ -10,15 +10,15 @@ export default {
       })
     }
 
-    const observableMethods = vm.$options.observableMethods
-    if (observableMethods) {
-      if (Array.isArray(observableMethods)) {
-        observableMethods.forEach(methodName => {
-          vm[ methodName + '$' ] = vm.$createObservableMethod(methodName)
+    const streamMethods = vm.$options.streamMethods
+    if (streamMethods) {
+      if (Array.isArray(streamMethods)) {
+        streamMethods.forEach(methodName => {
+          vm[ methodName + '$' ] = vm.$createStreamMethod(methodName)
         })
       } else {
-        Object.keys(observableMethods).forEach(methodName => {
-          vm[observableMethods[methodName]] = vm.$createObservableMethod(methodName)
+        Object.keys(streamMethods).forEach(methodName => {
+          vm[streamMethods[methodName]] = vm.$createStreamMethod(methodName)
         })
       }
     }
@@ -28,11 +28,11 @@ export default {
       obs = obs.call(vm)
     }
     if (obs) {
-      vm.$observables = {}
+      vm.$streams = {}
       vm._obSubscriptions = []
       Object.keys(obs).forEach(key => {
         defineReactive(vm, key, undefined)
-        const ob = vm.$observables[key] = obs[key]
+        const ob = vm.$streams[key] = obs[key]
         if (!isStream(ob)) {
           warn(
             'Invalid Stream found in subscriptions option with key "' + key + '".',
@@ -42,7 +42,7 @@ export default {
         }
         vm._obSubscriptions.push(obs[key])
         obs[key].addListener({
-          next: value => vm[key] = value,
+          next: value => { vm[key] = value },
           error: error => { throw error }
         })
       })

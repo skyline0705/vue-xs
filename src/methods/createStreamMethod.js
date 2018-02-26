@@ -1,13 +1,13 @@
 import { xstream, hasXStream, warn } from '../util'
 
 /**
- * @name Vue.prototype.$createObservableMethod
+ * @name Vue.prototype.$createStreamMethod
  * @description Creates an observable from a given function name.
  * @param {String} methodName Function name
  * @param {Boolean} [passContext] Append the call context at the end of emit data?
  * @return {Observable} Hot stream
  */
-export default function createObservableMethod (methodName, passContext) {
+export default function createStreamMethod (methodName, passContext) {
   if (!hasXStream()) {
     return
   }
@@ -16,14 +16,14 @@ export default function createObservableMethod (methodName, passContext) {
   if (vm[methodName] !== undefined) {
     warn(
       'Potential bug: ' +
-      `Method ${methodName} already defined on vm and has been overwritten by $createObservableMethod.` +
+      `Method ${methodName} already defined on vm and has been overwritten by $createStreamMethod.` +
       String(vm[methodName]),
       vm
     )
   }
 
   const producer = {
-    start(listener) {
+    start (listener) {
       vm[methodName] = function () {
         const args = Array.from(arguments)
         if (passContext) {
@@ -38,7 +38,7 @@ export default function createObservableMethod (methodName, passContext) {
         }
       }
     },
-    stop() {
+    stop () {
       delete vm[methodName]
     }
   }

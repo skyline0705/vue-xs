@@ -7,7 +7,7 @@
 <div id="app">
   <div>{{ count }}</div>
 
-  <!-- callback declared on observableMethods -->
+  <!-- callback declared on streamMethods -->
   <button v-on:click="muchMore(500)">Add 500</button>
 
   <button v-on:click="minus(minusDelta1)"> Minus on Click </button>
@@ -27,8 +27,8 @@ new Vue({
     }
   },
 
-  // declare callback Subjects
-  observableMethods: {
+  // declare callback Streams
+  streamMethods: {
     muchMore: 'muchMore$',
     minus:'minus$'
   }, // equivalent of above: ['muchMore','minus']

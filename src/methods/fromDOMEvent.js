@@ -11,7 +11,7 @@ export default function fromDOMEvent (selector, event) {
   const vm = this
   const doc = document.documentElement
   const obs$ = xstream.Stream.create({
-    start(listener) {
+    start (listener) {
       this.listener = function (e) {
         if (!vm.$el) return
         if (selector === null && vm.$el === e.target) return listener.next(e)
@@ -23,7 +23,7 @@ export default function fromDOMEvent (selector, event) {
       }
       doc.addEventListener(event, this.listener)
     },
-    stop() {
+    stop () {
       // disconnects the $watch expression
       doc.removeEventListener(event, this.listener)
       delete this.listener
