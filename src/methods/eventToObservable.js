@@ -11,7 +11,7 @@ export default function eventToObservable (evtName) {
   }
   const vm = this
   const evtNames = Array.isArray(evtName) ? evtName : [evtName]
-  const obs$ = Rx.Observable.create(observer => {
+  const obs$ = xstream.Stream.create(observer => {
     const eventPairs = evtNames.map(name => {
       const callback = msg => observer.next({ name, msg })
       vm.$on(name, callback)

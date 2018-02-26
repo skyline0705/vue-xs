@@ -5,7 +5,7 @@ export default function fromDOMEvent (selector, event) {
     return
   }
   if (typeof window === 'undefined') {
-    return xstream.Stream.create(() => {})
+    return xstream.Stream.create()
   }
 
   const vm = this

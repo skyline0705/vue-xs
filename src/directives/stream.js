@@ -28,28 +28,34 @@ export default {
     const next = (subject.next || subject.onNext).bind(subject)
 
     if (!modifiers.native && vnode.componentInstance) {
-      handle.subscription = vnode.componentInstance.$eventToObservable(event).subscribe(e => {
-        next({
-          event: e,
-          data: handle.data
-        })
+      handle.subscription = vnode.componentInstance.$eventToObservable(event)
+      handle.subscription.addListener({
+        next: e => {
+          next({
+            event: e,
+            data: handle.data
+          })
+        }
       })
     } else {
-      if (!Rx.Observable.fromEvent) {
+      if (!xstream.fromEvent) {
         warn(
-          `No 'fromEvent' method on Observable class. ` +
-          `v-stream directive requires Rx.Observable.fromEvent method. ` +
-          `Try import 'rxjs/add/observable/fromEvent' for ${streamName}`,
+          `No 'fromEvent' method on Stream class. ` +
+          `v-stream directive requires xstream's fromEvent factory. ` +
+          `Try import 'xstream/extra/fromEvent' for ${streamName}`,
           vnode.context
         )
         return
       }
       const fromEventArgs = handle.options ? [el, event, handle.options] : [el, event]
-      handle.subscription = Rx.Observable.fromEvent(...fromEventArgs).subscribe(e => {
-        next({
-          event: e,
-          data: handle.data
-        })
+      handle.subscription = xstream.fromEvent(...fromEventArgs)
+      handle.subscription.addListener({
+        next: e => {
+          next({
+            event: e,
+            data: handle.data
+          })
+        }
       })
 
       // store handle on element with a unique key for identifying

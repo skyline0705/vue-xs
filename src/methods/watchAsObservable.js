@@ -6,7 +6,7 @@ export default function watchAsObservable (expOrFn, options) {
   }
 
   const vm = this
-  const obs$ = Rx.Observable.create(observer => {
+  const obs$ = xstream.Stream.create(observer => {
     let _unwatch
     const watch = () => {
       _unwatch = vm.$watch(expOrFn, (newValue, oldValue) => {
