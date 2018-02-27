@@ -9,7 +9,7 @@ Simple [xstream](https://github.com/staltz/xstream) binding for Vue.js. It also 
 #### NPM + ES2015
 
 ``` bash
-npm install vue vue-xs rxjs --save
+npm install vue vue-xs xstream --save
 ```
 
 ``` js
