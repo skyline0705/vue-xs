@@ -1,7 +1,4 @@
 # vue-xs
-[^_^]:
-  TODO
-  [![Build Status](https://circleci.com/gh/vuejs/vue-xs/tree/master.svg?style=shield)](https://circleci.com/gh/vuejs/vue-xs/tree/master)
 
 English | [简体中文](README-CN.md)
 
