@@ -1,8 +1,5 @@
 # vue-xs
 
-[^_^]:
-  [![Build Status](https://circleci.com/gh/vuejs/vue-rx/tree/master.svg?style=shield)](https://circleci.com/gh/vuejs/vue-rx/tree/master)
-
 [English](README.md) | 简体中文
 
 Vue.js 的简单 [xstream](https://github.com/staltz/xstream) 绑定。它还支撑实现 `.addListener` 和 `.removeListener` 接口的通用 observables 的订阅。举例来说，你可以使用它来订阅 `most.js` 或 Falcor 流，但是某些功能需要 xstream 才能运行。
