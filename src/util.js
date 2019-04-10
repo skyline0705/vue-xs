@@ -24,13 +24,6 @@ export function isStream (ob) {
   return ob && typeof ob.addListener === 'function'
 }
 
-export function unsub (handle) {
-  if (!handle) return
-  handle._ils.forEach(listener => {
-    handle.removeListener(listener)
-  })
-}
-
 export function defineReactive (vm, key, val) {
   if (key in vm) {
     vm[key] = val

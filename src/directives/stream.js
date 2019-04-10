@@ -1,4 +1,4 @@
-import { xstream, hasXStream, isStream, warn, getKey, unsub } from '../util'
+import { xstream, hasXStream, isStream, warn, getKey } from '../util'
 
 export default {
   // Example ./example/counter_dir.html
@@ -28,14 +28,14 @@ export default {
     const next = stream.shamefullySendNext.bind(stream)
     if (!modifiers.native && vnode.componentInstance) {
       handle.subscription = vnode.componentInstance.$eventToStream(event)
-      handle.subscription.addListener({
-        next: e => {
-          next({
-            event: e,
-            data: handle.data
-          })
-        }
-      })
+        .subscribe({
+          next: e => {
+            next({
+              event: e,
+              data: handle.data
+            })
+          }
+        })
     } else {
       if (!xstream.fromEvent) {
         warn(
@@ -48,14 +48,14 @@ export default {
       }
       const fromEventArgs = handle.options ? [el, event, handle.options] : [el, event]
       handle.subscription = xstream.fromEvent(...fromEventArgs)
-      handle.subscription.addListener({
-        next: e => {
-          next({
-            event: e,
-            data: handle.data
-          })
-        }
-      })
+        .subscribe({
+          next: e => {
+            next({
+              event: e,
+              data: handle.data
+            })
+          }
+        })
     }
     // store handle on element with a unique key for identifying
     // multiple v-stream directives on the same node
@@ -74,7 +74,7 @@ export default {
     const key = getKey(binding)
     const handle = el._rxHandles && el._rxHandles[key]
     if (handle) {
-      unsub(handle.subscription)
+      handle.subscription.unsubscribe()
       el._rxHandles[key] = null
     }
   }

@@ -1,4 +1,4 @@
-import { xstream, defineReactive, isStream, warn, unsub } from './util'
+import { xstream, defineReactive, isStream, warn } from './util'
 
 export default {
   created () {
@@ -40,18 +40,18 @@ export default {
           )
           return
         }
-        vm._obSubscriptions.push(obs[key])
-        obs[key].addListener({
+        const sub = obs[key].subscribe({
           next: value => { vm[key] = value },
           error: error => { throw error }
         })
+        vm._obSubscriptions.push(sub)
       })
     }
   },
 
   beforeDestroy () {
     if (this._obSubscriptions) {
-      this._obSubscriptions.forEach(unsub)
+      this._obSubscriptions.forEach(sub => sub.unsubscribe())
     }
   }
 }
