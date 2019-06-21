@@ -48,7 +48,11 @@ export default {
       })
     }
   },
-
+  serverPrefetch () {
+    if (this._obSubscriptions) {
+      this._obSubscriptions.forEach(sub => sub.unsubscribe())
+    }
+  },
   beforeDestroy () {
     if (this._obSubscriptions) {
       this._obSubscriptions.forEach(sub => sub.unsubscribe())
